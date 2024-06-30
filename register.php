@@ -1,7 +1,9 @@
 <?php
+session_start();
+
 $servername = "localhost";
-$username = "root"; 
-$password = ""; 
+$username = "root";
+$password = "";
 $dbname = "jammu";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -11,20 +13,43 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $errors = [];
+    $name = $conn->real_escape_string($_POST['name']);
+    $email = $conn->real_escape_string($_POST['email']);
+    $username = $conn->real_escape_string($_POST['username']);
+    $password = $conn->real_escape_string($_POST['password']);
 
-    $name = $conn->real_escape_string($_POST["name"]);
-    $email = $conn->real_escape_string($_POST["email"]);
-    $username = $conn->real_escape_string($_POST["username"]);
-    $password = password_hash($conn->real_escape_string($_POST["password"]), PASSWORD_DEFAULT);
+    $checkSql = "SELECT * FROM users WHERE email = ? OR username = ?";
+    $stmt = $conn->prepare($checkSql);
+    $stmt->bind_param("ss", $email, $username);
+    $stmt->execute();
+    $stmt->store_result();
 
-    $sql = "INSERT INTO users (name, email, username, password) VALUES ('$name', '$email', '$username', '$password')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "Registration successful!";
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+    if ($stmt->num_rows > 0) {
+        $errors[] = "Email or Username already exists.";
     }
+    $stmt->close();
 
-    $conn->close();
+    if (empty($errors)) {
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $insertSql = "INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($insertSql);
+        $stmt->bind_param("ssss", $name, $email, $username, $hashed_password);
+
+        if ($stmt->execute()) {
+            $_SESSION['username'] = $username;
+            echo "Registration successful";
+        
+        } else {
+            echo "Error: Registration failed " . $insertSql . "<br>" . $conn->error;
+        }
+        $stmt->close();
+    } else {
+        foreach ($errors as $error) {
+            echo "<p style='color: red;'>$error</p>";
+        }
+    }
 }
+$conn->close();
 ?>

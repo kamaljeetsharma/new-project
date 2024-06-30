@@ -1,43 +1,51 @@
 <?php
+class Database {
+    private $host = 'localhost';
+    private $db_name = 'jammu';
+    private $username = 'root';
+    private $password = '';
+    public $conn;
+
+    public function getConnection() {
+        $this->conn = null;
+
+        try {
+            $this->conn = new mysqli($this->host, $this->username, $this->password, $this->db_name);
+        } catch (mysqli_sql_exception $exception) {
+            echo "Connection error: " . $exception->getMessage();
+        }
+
+        return $this->conn;
+    }
+}
 session_start();
 
-$servername = "localhost";
-$dbusername = "root";
-$dbpassword = "";
-$dbname = "jammu";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-$conn = new mysqli($servername, $dbusername, $dbpassword, $dbname);
+    $database = new Database();
+    $db = $database->getConnection();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $conn->real_escape_string($_POST["username"]);
-    $password = $conn->real_escape_string($_POST["password"]);
-
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['username'] = $username;
-            echo "Login successful! Welcome, " . $username;
-            header("Location: dashboard.php");
-            exit();
+        $user = $result->fetch_assoc();
+        // Verify password
+        if (password_verify($password, $user['password'])) { // Note: This is for demonstration purposes only; use hashing in real applications
+            $_SESSION['email'] = $user['email'];
+            echo 'Login successful. Welcome ' . $user['email'];
+            // Redirect to a protected page or dashboard
+            // header("Location: dashboard.php");
         } else {
-            echo "Invalid password.";
+            echo 'Invalid password.';
         }
     } else {
-        echo "No user found with that username.";
+        echo 'No user found with that email address.';
     }
-    
-    $stmt->close();
 }
-
-$conn->close();
 ?>
+

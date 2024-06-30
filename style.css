@@ -1,53 +1,39 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-    width: 100%;
-    max-width: 500px;
-    margin: 20px;
     padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    max-width: 400px;
+    margin: auto;
 }
 
-.admin-product-form-container form {
-    display: flex;
-    flex-direction: column;
-}
-
-.admin-product-form-container h3 {
+form {
     margin-bottom: 20px;
-    color: #333;
-    text-align: center;
 }
 
-.admin-product-form-container .box {
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+    padding: 8px;
+    margin-top: 5px;
 }
 
-.admin-product-form-container .btn {
+button {
     padding: 10px;
-    background-color: #5cb85c;
-    color: #fff;
+    background-color: #333;
+    color: white;
     border: none;
-    border-radius: 4px;
+    margin-top: 10px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
 }
 
-.admin-product-form-container .btn:hover {
-    background-color: #4cae4c;
+button:hover {
+    background-color: #575757;
 }
