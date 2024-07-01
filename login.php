@@ -35,10 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         // Verify password
-        if (password_verify($password, $user['password'])) { // Note: This is for demonstration purposes only; use hashing in real applications
+        if (password_verify($password, $user['password'])) { 
             $_SESSION['email'] = $user['email'];
             echo 'Login successful. Welcome ' . $user['email'];
-            header("Location:updateprofile.php");
+            // Redirect to a protected page or dashboard
+            // header("Location: dashboard.php");
         } else {
             echo 'Invalid password.';
         }
