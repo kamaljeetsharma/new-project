@@ -38,8 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (password_verify($password, $user['password'])) { // Note: This is for demonstration purposes only; use hashing in real applications
             $_SESSION['email'] = $user['email'];
             echo 'Login successful. Welcome ' . $user['email'];
-            // Redirect to a protected page or dashboard
-            // header("Location: dashboard.php");
+            header("Location:updateprofile.php");
         } else {
             echo 'Invalid password.';
         }

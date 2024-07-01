@@ -12,8 +12,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$errors = [];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $errors = [];
     $name = $conn->real_escape_string($_POST['name']);
     $email = $conn->real_escape_string($_POST['email']);
     $username = $conn->real_escape_string($_POST['username']);
@@ -31,7 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 
     if (empty($errors)) {
-
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $insertSql = "INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($insertSql);
@@ -40,16 +40,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             $_SESSION['username'] = $username;
             echo "Registration successful";
-        
+            header("Location:login.html");
         } else {
             echo "Error: Registration failed " . $insertSql . "<br>" . $conn->error;
         }
         $stmt->close();
-    } else {
-        foreach ($errors as $error) {
-            echo "<p style='color: red;'>$error</p>";
-        }
     }
 }
 $conn->close();
 ?>
+
+<!DOCTYPE html>
+<html>
