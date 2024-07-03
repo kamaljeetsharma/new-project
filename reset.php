@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
 
     // Update the password in the database
-    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+    $stmt = $conn->prepare("UPDATE customers SET password = ? WHERE email = ?");
     $stmt->bind_param("ss", $new_password, $email);
     $stmt->execute();
 

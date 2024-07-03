@@ -31,7 +31,7 @@ $db = $database->getConnection();
 $username = $_SESSION['username'];
 
 // Fetch current user details including hashed password
-$stmt = $db->prepare("SELECT name, email, password FROM users WHERE username = ?");
+$stmt = $db->prepare("SELECT name, email, password FROM customers WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $stmt->bind_result($name, $email, $hashed_password);
@@ -73,11 +73,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
 
                 // Prepare the SQL update statement with new password
-                $stmt = $db->prepare("UPDATE users SET name = ?, email = ?, password = ? WHERE username = ?");
+                $stmt = $db->prepare("UPDATE customers SET name = ?, email = ?, password = ? WHERE username = ?");
                 $stmt->bind_param("ssss", $name, $email, $hashed_new_password, $username);
             } else {
                 // Prepare the SQL update statement without changing password
-                $stmt = $db->prepare("UPDATE users SET name = ?, email = ? WHERE username = ?");
+                $stmt = $db->prepare("UPDATE customers SET name = ?, email = ? WHERE username = ?");
                 $stmt->bind_param("sss", $name, $email, $username);
             }
 

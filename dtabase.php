@@ -12,7 +12,7 @@ if ($conn->connect_error) {
 }
 
 // Create database
-$sql = "CREATE DATABASE IF NOT EXISTS jammu";
+$sql = "CREATE DATABASE IF NOT EXISTS june1";
 if ($conn->query($sql) === TRUE) {
     echo "Database created successfully<br>";
 } else {
@@ -20,10 +20,10 @@ if ($conn->query($sql) === TRUE) {
 }
 
 // Select the database
-$conn->select_db("jammu");
+$conn->select_db("june1");
 
 // SQL to create table
-$sql = "CREATE TABLE IF NOT EXISTS users (
+$sql = "CREATE TABLE IF NOT EXISTS user (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     username VARCHAR(50) NOT NULL UNIQUE,

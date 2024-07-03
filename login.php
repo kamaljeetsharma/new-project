@@ -9,43 +9,73 @@ class Database {
     public function getConnection() {
         $this->conn = null;
 
+        // Enable MySQLi exception mode for proper exception handling
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
         try {
             $this->conn = new mysqli($this->host, $this->username, $this->password, $this->db_name);
+            return $this->conn;
         } catch (mysqli_sql_exception $exception) {
-            echo "Connection error: " . $exception->getMessage();
+            throw new Exception("Database connection error: " . $exception->getMessage());
         }
-
-        return $this->conn;
     }
 }
-session_start();
 
+// Start or resume a session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Handle POST request for login
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    $database = new Database();
-    $db = $database->getConnection();
+    // Validate email format and non-empty password
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) && !empty($password)) {
+        try {
+            // Create database instance and establish connection
+            $database = new Database();
+            $db = $database->getConnection();
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+            if ($db) {
+                // Prepare SQL statement to fetch user by email
+                $stmt = $db->prepare("SELECT * FROM customers WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        // Verify password
-        if (password_verify($password, $user['password'])) { 
-            $_SESSION['email'] = $user['email'];
-            echo 'Login successful. Welcome ' . $user['email'];
-            // Redirect to a protected page or dashboard
-            // header("Location: dashboard.php");
-        } else {
-            echo 'Invalid password.';
+                if ($result->num_rows > 0) {
+                    // Fetch user data
+                    $user = $result->fetch_assoc();
+                    $stored_password = $user['password'];
+
+                    // Verify password
+                    if (password_verify($password, $stored_password)) {
+                        // Password is correct, set session and redirect
+                        $_SESSION['email'] = $user['email'];
+                        $_SESSION['username'] = $username;
+                        echo 'Login successful. Welcome ' . htmlspecialchars($user['email']);
+
+                        // Redirect to a protected page or dashboard
+                        header("Location: index.html");
+                        exit(); // Important: terminate script after redirect
+                    } else {
+                        echo 'Invalid password.';
+                    }
+                } else {
+                    echo 'No user found with that email address.';
+                }
+
+                $stmt->close();
+            } else {
+                echo 'Database connection failed.';
+            }
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
         }
     } else {
-        echo 'No user found with that email address.';
+        echo 'Invalid email or password.';
     }
 }
 ?>
-

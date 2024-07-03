@@ -18,9 +18,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $conn->real_escape_string($_POST['name']);
     $email = $conn->real_escape_string($_POST['email']);
     $username = $conn->real_escape_string($_POST['username']);
-    $password = $conn->real_escape_string($_POST['password']);
+    $new_password = $conn->real_escape_string($_POST['new_password']);
+    // var_dump($name);
+    // var_dump($email);
+    // var_dump($username);
+    // var_dump($new_password);
 
-    $checkSql = "SELECT * FROM users WHERE email = ? OR username = ?";
+    $checkSql = "SELECT * FROM customers WHERE email = ? OR username = ?";
     $stmt = $conn->prepare($checkSql);
     $stmt->bind_param("ss", $email, $username);
     $stmt->execute();
@@ -32,11 +36,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 
     if (empty($errors)) {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $insertSql = "INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)";
+        $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+        $insertSql = "INSERT INTO customers(name, email, username, password) VALUES (?, ?, ?, ?)";
+        //var_dump($name,$email,$password,$username);
+        // die($hashed_password);
+
         $stmt = $conn->prepare($insertSql);
         $stmt->bind_param("ssss", $name, $email, $username, $hashed_password);
-
         if ($stmt->execute()) {
             $_SESSION['username'] = $username;
             echo "Registration successful";
